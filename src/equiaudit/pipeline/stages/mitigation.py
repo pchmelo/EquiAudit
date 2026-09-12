@@ -46,7 +46,7 @@ class MitigationStage(BaseStageExecutor):
                     extra_params=extra,
                 )
 
-                if mitigation_result.get("status") == "success":
+                if mitigation_result and mitigation_result.get("status") == "success":
                     comparison_result = _compare_datasets(
                         ctx=ctx,
                         mitigated_dataset=mitigation_result.get("output_file"),
@@ -64,7 +64,7 @@ class MitigationStage(BaseStageExecutor):
                 else:
                     all_results[method_name] = {
                         "status": "error",
-                        "error": mitigation_result.get("message", "Unknown error"),
+                        "error": (mitigation_result or {}).get("message", "Unknown error"),
                     }
             except Exception as exc:
                 all_results[method_name] = {"status": "error", "error": str(exc)}
@@ -129,13 +129,13 @@ def _apply_single_mitigation(
 
         # Use stage 4.5 (Target Fairness) as the baseline — it is the authoritative
         # pre-mitigation fairness measurement.
-        target_fairness = ctx["results"].get("4_5_target_fairness", {})
+        target_fairness = (ctx.get("results") or {}).get("4_5_target_fairness", {})
         baseline_raw = target_fairness.get("single_attribute_ml_results") or {}
         baseline = dict(baseline_raw)
 
         analyzed_cols = list(target_fairness.get("analyzed_sensitive_columns") or [])
 
-        intersectional_ml = target_fairness.get("intersectional_ml_results", {})
+        intersectional_ml = target_fairness.get("intersectional_ml_results") or {}
         selected_pairs = ctx.get("selected_pairs", [])
         
         # If we have intersectional pairs, prepare them in the mitigated dataset
@@ -165,15 +165,117 @@ def _apply_single_mitigation(
             and analyzed_cols
             and target_column
         ):
-            ml_config = ctx.get("ml_config", {})
-            mitigated_metrics = fairness_tools.train_and_evaluate_ml_model(
-                dataset_name=result["output_file"],
-                target_column=target_column,
-                sensitive_columns=analyzed_cols,
-                test_size=ml_config.get("test_size", 0.25),
-                model_type=ml_config.get("model_type", "Random Forest"),
-                model_params=ml_config.get("model_params", {}),
-            )
+            import tempfile, shutil
+            import pandas as _pd
+            from sklearn.model_selection import train_test_split as _tts
+
+            ml_config = ctx.get("ml_config") or {}
+            _test_size = ml_config.get("test_size", 0.25)
+            _model_type = ml_config.get("model_type", "Random Forest")
+            _model_params = ml_config.get("model_params", {})
+
+            mitigated_metrics = None
+            eval_tmp_dir = None
+            try:
+                # Split-first protocol: apply mitigation to training partition only,
+                # evaluate on the untouched original test set.
+                orig_path = bias_tools._resolve_path(dataset_name)
+                orig_df = _pd.read_csv(orig_path).dropna(subset=[target_column])
+                try:
+                    train_orig, test_orig = _tts(
+                        orig_df, test_size=_test_size, random_state=42,
+                        stratify=orig_df[target_column]
+                    )
+                except ValueError:
+                    train_orig, test_orig = _tts(
+                        orig_df, test_size=_test_size, random_state=42
+                    )
+
+                eval_tmp_dir = tempfile.mkdtemp()
+                train_tmp_path = os.path.join(eval_tmp_dir, "train_tmp.csv")
+                train_orig.to_csv(train_tmp_path, index=False)
+
+                shared_eval = dict(
+                    dataset_name=train_tmp_path,
+                    target_column=target_column,
+                    output_dir=eval_tmp_dir,
+                )
+                if method == "reweighting":
+                    eval_r = bias_tools.apply_reweighting(
+                        sensitive_columns=sensitive_columns, **shared_eval
+                    )
+                elif method == "smote":
+                    eval_r = bias_tools.apply_smote(
+                        k_neighbors=extra_params.get("k_neighbors", 5),
+                        sampling_strategy=extra_params.get("sampling_strategy", "auto"),
+                        **shared_eval,
+                    )
+                elif method == "oversampling":
+                    eval_r = bias_tools.apply_oversampling(
+                        sampling_strategy=extra_params.get("sampling_strategy", "auto"),
+                        **shared_eval,
+                    )
+                elif method == "undersampling":
+                    eval_r = bias_tools.apply_undersampling(
+                        sampling_strategy=extra_params.get("sampling_strategy", "auto"),
+                        **shared_eval,
+                    )
+                elif method == "aif360_reweighing":
+                    eval_r = bias_tools.apply_aif360_reweighing(
+                        sensitive_columns=sensitive_columns, **shared_eval
+                    )
+                else:
+                    eval_r = {"status": "error"}
+
+                if eval_r.get("status") == "success":
+                    mitig_train_df = _pd.read_csv(eval_r["output_file"])
+                    test_df_eval = test_orig.copy()
+                    for pair in selected_pairs:
+                        c1, c2 = pair[0], pair[1]
+                        comb = f"{c1}_{c2}_combined"
+                        if c1 in mitig_train_df.columns and c2 in mitig_train_df.columns:
+                            mitig_train_df[comb] = (
+                                mitig_train_df[c1].astype(str) + "_" + mitig_train_df[c2].astype(str)
+                            )
+                        if c1 in test_df_eval.columns and c2 in test_df_eval.columns:
+                            test_df_eval[comb] = (
+                                test_df_eval[c1].astype(str) + "_" + test_df_eval[c2].astype(str)
+                            )
+                    # Drop artifact columns added by the mitigation tool that are
+                    # absent from the original test split (e.g. combined_group from
+                    # reweighting). Mismatched feature counts crash model.predict().
+                    test_cols = set(test_df_eval.columns)
+                    extra_train_cols = [
+                        c for c in mitig_train_df.columns
+                        if c not in test_cols and c != target_column and c != "sample_weight"
+                    ]
+                    if extra_train_cols:
+                        mitig_train_df = mitig_train_df.drop(columns=extra_train_cols)
+                    mitigated_metrics = fairness_tools.train_and_evaluate_ml_model(
+                        target_column=target_column,
+                        sensitive_columns=analyzed_cols,
+                        test_size=_test_size,
+                        model_type=_model_type,
+                        model_params=_model_params,
+                        train_df=mitig_train_df,
+                        test_df=test_df_eval,
+                    )
+            except Exception as _e:
+                print(f"[mitigation] Split-first eval failed ({_e}); falling back.")
+            finally:
+                if eval_tmp_dir:
+                    shutil.rmtree(eval_tmp_dir, ignore_errors=True)
+
+            if mitigated_metrics is None:
+                mitigated_metrics = fairness_tools.train_and_evaluate_ml_model(
+                    dataset_name=result["output_file"],
+                    target_column=target_column,
+                    sensitive_columns=analyzed_cols,
+                    test_size=_test_size,
+                    model_type=_model_type,
+                    model_params=_model_params,
+                )
+
             if mitigated_metrics.get("status") == "success":
                 result["fairness_comparison"] = _compare_fairness_metrics(
                     baseline, mitigated_metrics, method,

@@ -1,0 +1,59 @@
+{
+  "run_id": 4,
+  "model_config": "config_qwen",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T13:09:38.281025",
+  "elapsed_seconds": 84.7,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "status",
+      "personal_status_sex",
+      "other_debtors",
+      "employment_duration",
+      "age",
+      "job",
+      "other_installment_plans",
+      "housing",
+      "property"
+    ],
+    "num_sensitive_columns": 9,
+    "pair_selection": {
+      "selected_pairs": [
+        "status + personal_status_sex",
+        "employment_duration + age"
+      ],
+      "total_possible": 36,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"status + personal_status_sex\" is based on the historical significance of gender and status in discrimination studies. These attributes are often used to identify patterns where certain groups might face systemic biases, especially in contexts like employment or lending. The pair \"employment_duration + age\" is chosen because it addresses a critical intersection that can compound d"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          45.0,
+          60.0,
+          75.0
+        ],
+        "labels": [
+          "Youth",
+          "Adult",
+          "Middle-Age",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: status | Reason: Indicates financial situation which can be related to socioeconomic status | Values: no checking account(39.4%), ... < 100 DM(27.4%), 0 <= ... < 200 DM(26.9%)\n2. Column: personal_status_sex | Reason: Provides information on marital and gender status which can be considered sensitive | Values: male : single(54.8%), female : divorced/separated/married(31.0%), male : married/widowed(9.2%)\n3. Column: other_debtors | Reason: Indicates presence of co-debtors, which may refl"
+  }
+}

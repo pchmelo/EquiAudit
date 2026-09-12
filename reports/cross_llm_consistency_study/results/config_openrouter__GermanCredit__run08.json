@@ -1,0 +1,54 @@
+{
+  "run_id": 8,
+  "model_config": "config_openrouter",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-12T18:34:03.402992",
+  "elapsed_seconds": 22.5,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "personal_status_sex",
+      "age",
+      "job",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 4,
+    "pair_selection": {
+      "selected_pairs": [
+        "personal_status_sex + age",
+        "personal_status_sex + foreign_worker"
+      ],
+      "total_possible": 6,
+      "mode": "auto",
+      "reasoning_excerpt": "The pair **personal_status_sex + age** is selected because it directly aligns with historical discrimination patterns (such as Age + Gender) and is a cornerstone of employment and lending fairness. Intersectional bias here is highly relevant as older women often face compounded barriers in hiring, promotions, and credit access that neither attribute captures alone. The pair **personal_status_sex +"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          45.0,
+          60.0,
+          75.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior",
+          "Elderly"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: personal_status_sex | Reason: Contains demographic information regarding sex/gender and marital status | Values: [male : single, female : divorced/separated/married, male : married/widowed]\n2. Column: age | Reason: Demographic attribute representing the age of individuals | Values: [67, 22, 49, 45, 53]\n3. Column: job | Reason: Socioeconomic attribute representing occupation | Values: [skilled employee/official, unskilled - resident, management/self-employed/highly qualified employee/o"
+  }
+}

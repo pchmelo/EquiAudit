@@ -1,0 +1,56 @@
+{
+  "run_id": 5,
+  "model_config": "config_qwen",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T13:11:08.250289",
+  "elapsed_seconds": 85.2,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "status",
+      "personal_status_sex",
+      "other_debtors",
+      "present_residence",
+      "employment_duration",
+      "age",
+      "job",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 8,
+    "pair_selection": {
+      "selected_pairs": [
+        "status + personal_status_sex",
+        "employment_duration + age"
+      ],
+      "total_possible": 28,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"status + personal_status_sex\" is based on the potential for intersectional bias, as it combines two attributes that are historically significant in terms of discrimination patterns. Personal status and sex have been key factors in various forms of historical discrimination, making this pair particularly important. The pair \"employment_duration + age\" was chosen because both attri"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          35.0,
+          50.0,
+          75.0
+        ],
+        "labels": [
+          "Youth",
+          "Adulthood",
+          "Elderhood"
+        ],
+        "method": "auto",
+        "n_bins": 3
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: status | Reason: Indicates financial status which can be considered sensitive as it may reflect past credit issues or financial difficulties | Values: no checking account(39.4%), < 100 DM(27.4%), 0 <= ... < 200 DM(26.9%)\n2. Column: personal_status_sex | Reason: Contains information about the individual's marital status and gender, which are protected attributes | Values: male : single(54.8%), female : divorced/separated/married(31.0%), male : married/widowed(9.2%)\n3. Column: other_deb"
+  }
+}

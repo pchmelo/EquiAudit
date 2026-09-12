@@ -94,12 +94,25 @@ class FairnessEvaluator:
         if config_path is None:
             config_path = os.path.join(_SRC_DIR, "models", "config.yml")
         self.config_path = os.path.abspath(config_path)
-        
+
         # Resolve output directory
         if output_dir is None:
-            # Default to project root's reports/ folder
-            project_root = os.path.dirname(_SRC_DIR)
-            output_dir = os.path.join(project_root, "reports")
+            # Check config file for report_dir key
+            config_report_dir = None
+            try:
+                with open(self.config_path, encoding="utf-8") as _f:
+                    _cfg = yaml.safe_load(_f) or {}
+                config_report_dir = _cfg.get("report_dir") or None
+            except Exception:
+                pass
+
+            if config_report_dir:
+                # Relative paths are resolved relative to the config file's directory
+                config_dir = os.path.dirname(self.config_path)
+                output_dir = os.path.join(config_dir, config_report_dir) if not os.path.isabs(config_report_dir) else config_report_dir
+            else:
+                # Default: reports/ next to the config file
+                output_dir = os.path.join(os.path.dirname(self.config_path), "reports")
         self.output_dir = os.path.abspath(output_dir)
         
         # Pipeline will be initialized lazily
@@ -388,6 +401,7 @@ class FairnessEvaluator:
                 max_pairs=max_pairs,
                 mitigation_config=final_mitigation_config,
                 discretization_config=discretization_config,
+                report_base_dir=self.output_dir,
             )
             
             # Generate report

@@ -219,6 +219,7 @@ class DiscretizationStage(BaseStageExecutor):
             "Rules:\n"
             "- BIN_EDGES: sorted numeric boundaries, first ≤ min, last ≥ max\n"
             "- LABELS: one fewer than BIN_EDGES, short human-readable names\n"
+            "- LABELS must be simple words or hyphenated words ONLY — NO commas, NO parentheses, NO numbers inside label names\n"
             "- Do NOT put any text AFTER the LABELS line\n"
             "- The BIN_EDGES and LABELS lines are MANDATORY — omitting them causes a pipeline failure\n\n"
             "Example for an age column (range 18-75):\n"
@@ -307,17 +308,49 @@ class DiscretizationStage(BaseStageExecutor):
 
     @staticmethod
     def _parse_labels(response: str, expected_count: int) -> list:
-        """Extract LABELS from the agent response."""
+        """Extract LABELS from the agent response.
+
+        Handles the common failure mode where the model includes commas or
+        parenthetical annotations inside label names, causing a naive comma-split
+        to produce more tokens than expected.  Recovery strategy: strip
+        parenthetical suffixes from each raw token and re-join tokens that look
+        like they belong together (e.g. "Middle-Aged (28" and "40)" merge back
+        to "Middle-Aged").
+        """
         match = re.search(r"LABELS\s*:\s*\[([^\]]+)\]", response)
         if not match:
-            # Try alternative formats
             match = re.search(r"(?:labels|bin[_ ]?labels)\s*[:=]\s*\[([^\]]+)\]", response, re.IGNORECASE)
         if not match:
             return None
+
+        raw = match.group(1)
         try:
-            labels = [x.strip().strip("'\"") for x in match.group(1).split(",")]
+            tokens = [x.strip().strip("'\"") for x in raw.split(",")]
+
+            # Happy path: count matches immediately
+            if len(tokens) == expected_count:
+                return [t for t in tokens if t]
+
+            # Recovery: strip parenthetical annotations like "(19-28)" or "(prime age)"
+            # and then re-split.  Pattern: remove anything in ( ... ) from each token.
+            cleaned = [re.sub(r"\s*\([^)]*\)", "", t).strip() for t in tokens]
+            cleaned = [t for t in cleaned if t]
+            if len(cleaned) == expected_count:
+                return cleaned
+
+            # Last resort: if we have too many tokens because commas appeared inside
+            # annotations, reconstruct by merging tokens until we hit expected_count.
+            # Strategy: greedily take tokens that look like label words (non-numeric
+            # leading character) and merge short fragments into the previous label.
+            labels: list = []
+            for tok in cleaned:
+                if labels and (not tok or tok[0].isdigit() or tok.startswith("-")):
+                    # numeric fragment — belongs to the previous token's annotation
+                    continue
+                labels.append(tok)
             if len(labels) == expected_count:
                 return labels
+
         except (ValueError, TypeError):
             pass
         return None

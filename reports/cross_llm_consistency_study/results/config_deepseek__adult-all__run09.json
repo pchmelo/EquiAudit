@@ -1,0 +1,60 @@
+{
+  "run_id": 9,
+  "model_config": "config_deepseek",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T14:01:24.092507",
+  "elapsed_seconds": 268.1,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Relationship",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 8,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Education + Occupation"
+      ],
+      "total_possible": 28,
+      "mode": "auto",
+      "reasoning_excerpt": "1. **Race + Sex**: This pair is highly relevant due to its historical significance in discrimination studies. It's commonly studied and has direct implications for fairness in areas like employment and healthcare, making it statistically significant with ample data points. 2. **Education + Occupation**: This combination is crucial as education levels significantly influence occupation distribution"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          16.927,
+          31.6,
+          46.2,
+          60.8,
+          75.4,
+          90.0
+        ],
+        "labels": [
+          "(16.926, 31.6]",
+          "(31.6, 46.2]",
+          "(46.2, 60.8]",
+          "(60.8, 75.4]",
+          "(75.4, 90.0]"
+        ],
+        "method": "equal_width (fallback — agent failed to return BIN_EDGES)",
+        "n_bins": 5
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Represents demographic information about individuals. | Values: [39, 50, 38, 53, 28]\n2. Column: Education | Reason: Relates to personal background and can impact other aspects like income or occupation. | Values: [HS-grad, Some-college, Bachelors]\n3. Column: Education Number of Years | Reason: Provides specific information about education levels. | Values: [9, 10, 13]\n4. Column: Marital-status | Reason: A personal attribute that can impact various aspects of someone's li"
+  }
+}

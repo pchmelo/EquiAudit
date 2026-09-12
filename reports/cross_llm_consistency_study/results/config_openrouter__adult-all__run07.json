@@ -1,0 +1,58 @@
+{
+  "run_id": 7,
+  "model_config": "config_openrouter",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T15:36:12.728743",
+  "elapsed_seconds": 25.1,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Relationship",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 8,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Sex"
+      ],
+      "total_possible": 28,
+      "mode": "auto",
+      "reasoning_excerpt": "Race + Sex is selected because it represents the foundational intersectional framework in fairness research, capturing compounded historical discrimination where individuals face simultaneous bias based on both race and gender. This pair is highly relevant across employment, lending, and healthcare fairness, and typically yields statistically significant results due to the availability of large de"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          25.0,
+          40.0,
+          60.0,
+          90.0
+        ],
+        "labels": [
+          "Young",
+          "Early-Middle",
+          "Middle-Aged",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographics (Age) | Values: [39, 50, 38]\n2. Column: Education | Reason: Socioeconomic (Education) | Values: [HS-grad, Some-college, Bachelors]\n3. Column: Education Number of Years | Reason: Socioeconomic (Education) | Values: [9, 10, 13]\n4. Column: Marital-status | Reason: Personal (Marital-status) | Values: [Married-civ-spouse, Never-married, Divorced]\n5. Column: Occupation | Reason: Socioeconomic (Occupation) | Values: [Prof-specialty, Craft-repair, Exec-managerial]\n6"
+  }
+}

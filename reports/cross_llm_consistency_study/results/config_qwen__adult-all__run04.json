@@ -1,0 +1,57 @@
+{
+  "run_id": 4,
+  "model_config": "config_qwen",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T12:53:49.780581",
+  "elapsed_seconds": 85.8,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Race",
+      "Sex",
+      "Marital-status",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 5,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Marital-status"
+      ],
+      "total_possible": 10,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"Race + Sex\" and \"Age + Marital-status\" as the most important pairs for fairness analysis is based on several considerations: 1. **Historical Discrimination Patterns**: Both \"Race + Sex\" and \"Age + Marital-status\" are well-documented areas where intersectional bias has historically been observed. For instance, race and sex often compound to create unique forms of discrimination in"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          25.0,
+          35.0,
+          45.0,
+          60.0,
+          90.0
+        ],
+        "labels": [
+          "Teen",
+          "Young Adult",
+          "Middle-Aged",
+          "Mature",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 5
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographic information that can reveal age-related characteristics and potentially discrimination issues | Values: [39, 50, 38, 53, 28]\n2. Column: Race | Reason: Demographic information that can reveal racial/ethnic background and potentially lead to discrimination | Values: [White, Black, Asian-Pac-Islander]\n3. Column: Sex | Reason: Demographic information that can reveal gender and potentially lead to gender-based discrimination | Values: [Male, Female]\n4. Column: Mar"
+  }
+}

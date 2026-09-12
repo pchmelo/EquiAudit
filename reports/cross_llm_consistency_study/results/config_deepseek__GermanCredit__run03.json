@@ -1,0 +1,51 @@
+{
+  "run_id": 3,
+  "model_config": "config_deepseek",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T14:16:46.467288",
+  "elapsed_seconds": 227.9,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "age",
+      "personal_status_sex"
+    ],
+    "num_sensitive_columns": 2,
+    "pair_selection": {
+      "selected_pairs": [],
+      "total_possible": 0,
+      "mode": "",
+      "reasoning_excerpt": ""
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          18.944,
+          30.2,
+          41.4,
+          52.599999999999994,
+          63.8,
+          75.0
+        ],
+        "labels": [
+          "(18.942999999999998, 30.2]",
+          "(30.2, 41.4]",
+          "(41.4, 52.6]",
+          "(52.6, 63.8]",
+          "(63.8, 75.0]"
+        ],
+        "method": "equal_width (fallback — agent failed to return BIN_EDGES)",
+        "n_bins": 5
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: age | Reason: Demographics | Values: [67, 22, 49, 45, 53]  \n2. Column: personal_status_sex | Reason: Personal (Sex/Gender) | Values: [male : single(54.8%), female : divorced/separated/married(31.0%), male : married/widowed(9.2%)]"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "run_id": 5,
+  "model_config": "config_qwen",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T12:55:19.002113",
+  "elapsed_seconds": 84.2,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Race",
+      "Sex",
+      "Native-country",
+      "Education",
+      "Marital-status"
+    ],
+    "num_sensitive_columns": 6,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Native-country"
+      ],
+      "total_possible": 15,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"Race + Sex\" is based on historical discrimination patterns, particularly in contexts where race and gender have been shown to compound disadvantages. For instance, women of certain races may face compounded discrimination in employment, housing, and healthcare. The pair \"Age + Native-country\" was chosen because it considers the intersectionality between age-related biases (e.g., "
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          25.0,
+          35.0,
+          45.0,
+          60.0
+        ],
+        "labels": [
+          "Teen",
+          "Young Adult",
+          "Middle-Aged",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographic information that can be used to discriminate based on age | Values: [39, 50, 38, 53, 28]\n2. Column: Race | Reason: Sensitive demographic information related to ethnicity and race | Values: [White, Black, Asian-Pac-Islander]\n3. Column: Sex | Reason: Sensitive personal attribute that can be used for discrimination based on gender | Values: [Male, Female]\n4. Column: Native-country | Reason: Sensitive geographic information that can reveal nationality or origin |"
+  }
+}

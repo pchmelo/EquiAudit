@@ -1,0 +1,46 @@
+# EquiAudit consistency study — Qwen2.5-7B via Ollama (local)
+default_model: qwen2.5-7b
+
+generate_detailed_report: false
+generate_executive_summary: false
+use_humanizer: false
+
+models:
+  qwen2.5-7b:
+    provider: ollama
+    model: "qwen2.5:7b"
+    base_url: "http://localhost:11434"
+
+agents:
+  file_parser:
+    type: FunctionCallerAgent
+    tools: [fairness]
+    stages: [parsing]
+    reflect_on_tool_use: true
+
+  inspector:
+    type: FunctionCallerAgent
+    tools: [fairness]
+    stages: [inspection]
+    reflect_on_tool_use: true
+
+  quality_analyst:
+    type: DataAnalystAgent
+    tools: [fairness]
+    stages: [quality_analysis]
+
+  fairness_analyst:
+    type: DataAnalystAgent
+    tools: [fairness]
+    stages: [fairness_analysis]
+
+  bias_mitigator:
+    type: FunctionCallerAgent
+    tools: [bias_mitigation]
+    stages: [mitigation]
+    reflect_on_tool_use: true
+
+  recommendation:
+    type: ConversationalAgent
+    tools: []
+    stages: [recommendation]

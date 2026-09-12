@@ -824,10 +824,194 @@ class FairnessTools(ToolManager):
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def train_and_evaluate_ml_model(self, dataset_name: str, target_column: str, 
-                                     sensitive_columns: list = None, test_size: float = 0.25,
-                                     model_type: str = "Random Forest", model_params: dict = None) -> dict:
+    def _eval_presplit(self, train_df, test_df, target_column, sensitive_columns,
+                       test_size, model_type, model_params):
+        """Evaluate a model on pre-split DataFrames (split-first protocol for mitigation eval)."""
+        _train = train_df.copy().dropna(subset=[target_column])
+        _test = test_df.copy().dropna(subset=[target_column])
+
+        X_tr = _train.drop(columns=[target_column])
+        y_train_raw = _train[target_column]
+        X_te = _test.drop(columns=[target_column])
+        y_test_raw = _test[target_column]
+
+        X_test_raw = X_te.copy()
+
+        w_train = None
+        if 'sample_weight' in X_tr.columns:
+            w_train = X_tr['sample_weight'].values
+            X_tr = X_tr.drop(columns=['sample_weight'])
+            X_test_raw = X_test_raw.drop(columns=['sample_weight'], errors='ignore')
+        if 'sample_weight' in X_te.columns:
+            X_te = X_te.drop(columns=['sample_weight'])
+
+        X_train = X_tr.copy()
+        X_test = X_te.copy()
+
+        for col in X_train.select_dtypes(include=['object', 'category']).columns:
+            le = LabelEncoder()
+            X_train[col] = X_train[col].fillna("Missing").astype(str)
+            X_train[col] = le.fit_transform(X_train[col])
+            if col in X_test.columns:
+                X_test[col] = X_test[col].fillna("Missing").astype(str).map(
+                    lambda v, _le=le: int(_le.transform([v])[0]) if v in _le.classes_ else 0
+                )
+
+        for col in X_train.select_dtypes(include=['int64', 'float64']).columns:
+            med = float(X_train[col].median())
+            X_train[col] = X_train[col].fillna(med)
+            if col in X_test.columns:
+                X_test[col] = X_test[col].fillna(med)
+
+        le_target = LabelEncoder()
+        y_train = le_target.fit_transform(y_train_raw.astype(str))
+        y_test = np.array([
+            int(le_target.transform([v])[0]) if v in le_target.classes_ else 0
+            for v in y_test_raw.astype(str)
+        ])
+
+        positive_label_idx = 1 if len(le_target.classes_) > 1 else 0
+        positive_class_name = le_target.classes_[positive_label_idx]
+
+        if model_type == "Logistic Regression":
+            model = LogisticRegression(random_state=42, max_iter=1000, **model_params)
+        elif model_type == "Gradient Boosting":
+            model = GradientBoostingClassifier(random_state=42, **model_params)
+        elif model_type == "SVM":
+            model = SVC(random_state=42, probability=True, **model_params)
+        else:
+            model = RandomForestClassifier(random_state=42, **model_params)
+
+        if w_train is not None:
+            model.fit(X_train, y_train, sample_weight=w_train)
+        else:
+            model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+
+        acc = accuracy_score(y_test, y_pred)
+        f1_macro = f1_score(y_test, y_pred, average='macro', zero_division=0)
+        f1_weighted = f1_score(y_test, y_pred, average='weighted', zero_division=0)
         try:
+            conf_matrix = confusion_matrix(y_test, y_pred).tolist()
+        except Exception:
+            conf_matrix = []
+
+        result = {
+            "status": "success",
+            "model_type": model_type,
+            "model_params": model_params,
+            "test_size": test_size,
+            "dataset_size": len(_train) + len(_test),
+            "test_samples": len(y_test),
+            "performance": {
+                "accuracy": round(acc, 4),
+                "f1_macro": round(f1_macro, 4),
+                "f1_weighted": round(f1_weighted, 4),
+                "confusion_matrix": conf_matrix,
+                "per_label_metrics": classification_report(y_test, y_pred, output_dict=True)
+            },
+            "fairness_analysis": {},
+            "positive_class": str(positive_class_name)
+        }
+
+        if sensitive_columns:
+            fairness_results = {}
+            for sens_col in sensitive_columns:
+                if sens_col not in X_test_raw.columns:
+                    continue
+                groups = X_test_raw[sens_col].fillna("Missing").astype(str)
+                unique_groups = groups.unique()
+                group_metrics = {}
+                positive_rates = {}
+                for group in unique_groups:
+                    mask = (groups == group)
+                    if mask.sum() == 0:
+                        continue
+                    y_test_g = y_test[mask.values]
+                    y_pred_g = y_pred[mask.values]
+                    g_acc = accuracy_score(y_test_g, y_pred_g)
+                    g_f1 = f1_score(y_test_g, y_pred_g, average='macro', zero_division=0)
+                    pred_pos_count = (y_pred_g == positive_label_idx).sum()
+                    total_count = len(y_pred_g)
+                    pos_rate = pred_pos_count / total_count if total_count > 0 else 0
+                    actual_pos_count = (y_test_g == positive_label_idx).sum()
+                    base_rate = actual_pos_count / total_count if total_count > 0 else 0
+                    y_test_g_binary = (y_test_g == positive_label_idx).astype(int)
+                    y_pred_g_binary = (y_pred_g == positive_label_idx).astype(int)
+                    try:
+                        tn, fp, fn, tp = confusion_matrix(
+                            y_test_g_binary, y_pred_g_binary, labels=[0, 1]
+                        ).ravel()
+                        tpr = tp / (tp + fn) if (tp + fn) > 0 else 0
+                        tnr = tn / (tn + fp) if (tn + fp) > 0 else 0
+                        fpr = fp / (fp + tn) if (fp + tn) > 0 else 0
+                        fnr = fn / (fn + tp) if (fn + tp) > 0 else 0
+                    except Exception:
+                        tn = fp = fn = tp = 0
+                        tpr = tnr = fpr = fnr = 0
+                    group_metrics[str(group)] = {
+                        "accuracy": round(g_acc, 4),
+                        "f1_macro": round(g_f1, 4),
+                        "positive_rate": round(pos_rate, 4),
+                        "base_rate": round(base_rate, 4),
+                        "count": int(total_count),
+                        "tpr": round(tpr, 4),
+                        "tnr": round(tnr, 4),
+                        "fpr": round(fpr, 4),
+                        "fnr": round(fnr, 4),
+                        "tp": int(tp),
+                        "fp": int(fp),
+                        "tn": int(tn),
+                        "fn": int(fn)
+                    }
+                    positive_rates[str(group)] = pos_rate
+                rates_list = list(positive_rates.values())
+                if rates_list:
+                    max_rate = max(rates_list)
+                    min_rate = min(rates_list)
+                    spd = max_rate - min_rate
+                    non_zero_rates = [r for r in rates_list if r > 0]
+                    if non_zero_rates and max_rate > 0:
+                        min_non_zero_rate = min(non_zero_rates)
+                        di = min_non_zero_rate / max_rate
+                        min_rate_group = min(
+                            (g for g, r in positive_rates.items() if r > 0),
+                            key=lambda g: positive_rates[g]
+                        )
+                    else:
+                        di = 0.0
+                        min_rate_group = (
+                            min(positive_rates, key=positive_rates.get) if positive_rates else "N/A"
+                        )
+                else:
+                    spd = 0.0
+                    di = 0.0
+                    min_rate_group = "N/A"
+                fairness_results[sens_col] = {
+                    "groups": group_metrics,
+                    "metrics": {
+                        "statistical_parity_difference": round(spd, 4),
+                        "disparate_impact": round(di, 4),
+                        "max_positive_rate_group": (
+                            max(positive_rates, key=positive_rates.get) if positive_rates else "N/A"
+                        ),
+                        "min_positive_rate_group": min_rate_group
+                    }
+                }
+            result["fairness_analysis"] = fairness_results
+
+        return result
+
+    def train_and_evaluate_ml_model(self, dataset_name: str = None, target_column: str = None,
+                                     sensitive_columns: list = None, test_size: float = 0.25,
+                                     model_type: str = "Random Forest", model_params: dict = None,
+                                     train_df=None, test_df=None) -> dict:
+        try:
+            if train_df is not None and test_df is not None:
+                return self._eval_presplit(
+                    train_df, test_df, target_column, sensitive_columns,
+                    test_size, model_type, model_params or {}
+                )
             path = self._resolve_path(dataset_name)
             
             na_values = ['?', 'NA', 'N/A', 'n/a', 'na', 'NULL', 'null', 'None', 'none', 

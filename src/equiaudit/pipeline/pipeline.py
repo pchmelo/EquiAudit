@@ -132,6 +132,7 @@ class DatasetEvaluationPipeline:
         dataset_name: str,
         target_column: Optional[str] = None,
         user_prompt: str = "",
+        report_base_dir: Optional[str] = None,
     ) -> List[Stage]:
         """
         Build the ordered list of stages for an evaluation run.
@@ -141,7 +142,8 @@ class DatasetEvaluationPipeline:
         self.user_objective = user_prompt
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.report_dir = os.path.join(BASE_DIR, "reports", f"{dataset_name}_{timestamp}")
+        _base = report_base_dir if report_base_dir else os.path.join(BASE_DIR, "reports")
+        self.report_dir = os.path.join(_base, f"{dataset_name}_{timestamp}")
         self.images_dir = os.path.join(self.report_dir, "images")
         os.makedirs(self.images_dir, exist_ok=True)
 
@@ -162,7 +164,7 @@ class DatasetEvaluationPipeline:
             "report_dir": self.report_dir,
             "images_dir": self.images_dir,
             "confirmed_sensitive_columns": None,
-            "ml_config": {"enabled": False},
+            "ml_config": {"enabled": True},
             "selected_pairs": None,
             "mitigation_config": None,
             # Discretization config
@@ -320,6 +322,7 @@ class DatasetEvaluationPipeline:
         max_pairs: int = None,
         mitigation_config: dict = None,
         discretization_config: dict = None,
+        report_base_dir: str = None,
     ) -> Dict[str, Any]:
         """Run the full pipeline in one shot (used by terminal mode).
         
@@ -342,7 +345,7 @@ class DatasetEvaluationPipeline:
         """
         dataset_name = self._extract_dataset_name(user_prompt)
         target_column = self._extract_target_column(user_prompt)
-        self.build_stages(dataset_name, target_column, user_prompt)
+        self.build_stages(dataset_name, target_column, user_prompt, report_base_dir=report_base_dir)
 
         if confirmed_sensitive:
             self._pipeline_ctx["confirmed_sensitive_columns"] = confirmed_sensitive

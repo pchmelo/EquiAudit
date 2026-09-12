@@ -1,0 +1,54 @@
+{
+  "run_id": 9,
+  "model_config": "config_deepseek",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T14:39:16.701907",
+  "elapsed_seconds": 220.4,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "age",
+      "personal_status_sex",
+      "job",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 4,
+    "pair_selection": {
+      "selected_pairs": [
+        "age + personal_status_sex",
+        "job + foreign_worker"
+      ],
+      "total_possible": 6,
+      "mode": "auto",
+      "reasoning_excerpt": "1. **Historical Discrimination Patterns**: The pair \"age + personal_status_sex\" mirrors the interaction of age and gender, which has historical roots in discrimination studies, making it relevant for fairness analysis. 2. **Intersectional Bias**: \"job + foreign_worker\" is crucial as it highlights how foreign workers might face compounded disadvantages due to both their employment status and other "
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          45.0,
+          60.0,
+          75.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior",
+          "Elderly"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "Here is the list of sensitive columns identified in the dataset:\n\n1. **Column: age | Reason: Demographics | Values: [67, 22, 49, 45, 53]**  \n2. **Column: personal_status_sex | Reason: Personal (Sex and Marital Status) | Values: [male : single, female : divorced/separated/married, male : married/widowed]**  \n3. **Column: job | Reason: Socioeconomic (Occupation) | Values: [skilled employee/official, unskilled - resident, management/self-employed/highly qualified employee/officer]**  \n4. **Column: "
+  }
+}

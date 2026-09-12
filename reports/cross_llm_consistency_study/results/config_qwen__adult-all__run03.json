@@ -1,0 +1,54 @@
+{
+  "run_id": 3,
+  "model_config": "config_qwen",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T12:52:18.919885",
+  "elapsed_seconds": 78.4,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 4,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Native-country"
+      ],
+      "total_possible": 6,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"Race + Sex\" is based on historical discrimination patterns, particularly in areas such as employment and housing where race and gender have been shown to compound disadvantages. This intersectional analysis can reveal if certain groups face compounded barriers due to both their race and gender. The pair \"Age + Native-country\" was chosen because it considers the potential for inte"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          25.0,
+          40.0,
+          60.0,
+          90.0
+        ],
+        "labels": [
+          "Teen",
+          "Young Adult",
+          "Middle-Age",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographic information that can be used to discriminate based on age | Values: [39, 50, 38, 53, 28]\n2. Column: Race | Reason: Sensitive demographic attribute that can lead to discrimination based on ethnicity or race | Values: [White, Black, Asian-Pac-Islander]\n3. Column: Sex | Reason: Sensitive personal attribute that can be used for gender-based discrimination | Values: [Male, Female]\n4. Column: Native-country | Reason: Sensitive geographic information that can lead t"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "run_id": 1,
+  "model_config": "config_openrouter",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-12T18:30:32.438787",
+  "elapsed_seconds": 19.9,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "age",
+      "personal_status_sex",
+      "job",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 4,
+    "pair_selection": {
+      "selected_pairs": [
+        "age + personal_status_sex",
+        "personal_status_sex + job"
+      ],
+      "total_possible": 6,
+      "mode": "auto",
+      "reasoning_excerpt": "1. Historical discrimination patterns: The pair \"age + personal_status_sex\" directly mirrors the historically studied \"Age + Gender\" intersection, which has well-documented patterns of systemic bias (e.g., older women facing specific workplace marginalization). The pair \"personal_status_sex + job\" reflects historical occupational segregation and gender bias, where women have been systematically fu"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          45.0,
+          60.0,
+          75.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior",
+          "Elderly"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: age | Reason: Demographics - Age | Values: [67, 22, 49, 45, 53]\n2. Column: personal_status_sex | Reason: Demographics - Sex/Gender and Personal - Marital-status | Values: [male : single, female : divorced/separated/married, male : married/widowed]\n3. Column: job | Reason: Socioeconomic - Occupation | Values: [skilled employee/official, unskilled - resident, management/self-employed/highly qualified employee/officer]\n4. Column: foreign_worker | Reason: Geographic - Nationality/Foreign "
+  }
+}

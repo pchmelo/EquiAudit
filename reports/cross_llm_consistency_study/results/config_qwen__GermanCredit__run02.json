@@ -1,0 +1,56 @@
+{
+  "run_id": 2,
+  "model_config": "config_qwen",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T13:06:30.960259",
+  "elapsed_seconds": 99.1,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "status",
+      "age",
+      "personal_status_sex",
+      "employment_duration",
+      "other_debtors",
+      "property",
+      "job",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 8,
+    "pair_selection": {
+      "selected_pairs": [
+        "age + personal_status_sex",
+        "employment_duration + other_debtors"
+      ],
+      "total_possible": 28,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of these pairs is based on the following considerations: 1. **Historical Discrimination Patterns**: The combination \"age + personal_status_sex\" aligns with historical patterns where discrimination often intersects with both age and gender (or in this context, personal status). For instance, older individuals might face different treatment compared to younger ones, especially if their"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          35.0,
+          55.0,
+          75.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 3
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: status | Reason: This column contains information about the credit status of individuals which can be indicative of their socio-economic background and financial situation. | Values: no checking account(39.4%), < 100 DM(27.4%), 0 <= ... < 200 DM(26.9%)\n\n2. Column: age | Reason: Age is a demographic attribute that can be used to infer characteristics such as life stage, potential for long-term financial planning, and other socio-economic factors. | Values: [67, 22, 49, 45, 53]\n\n3. Colu"
+  }
+}

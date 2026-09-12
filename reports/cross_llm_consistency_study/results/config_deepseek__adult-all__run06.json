@@ -1,0 +1,60 @@
+{
+  "run_id": 6,
+  "model_config": "config_deepseek",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T13:47:31.458187",
+  "elapsed_seconds": 267.9,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Relationship",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 8,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Education + Occupation"
+      ],
+      "total_possible": 28,
+      "mode": "auto",
+      "reasoning_excerpt": "1. **Race + Sex**: This pair is significant due to historical discrimination patterns, particularly in employment, healthcare, and other areas where these attributes intersect. It's a classic combination often studied for fairness issues, making it highly relevant. 2. **Education + Occupation**: This pair is crucial because education levels can determine occupational opportunities, directly impact"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          16.927,
+          31.6,
+          46.2,
+          60.8,
+          75.4,
+          90.0
+        ],
+        "labels": [
+          "(16.926, 31.6]",
+          "(31.6, 46.2]",
+          "(46.2, 60.8]",
+          "(60.8, 75.4]",
+          "(75.4, 90.0]"
+        ],
+        "method": "equal_width (fallback — agent failed to return BIN_EDGES)",
+        "n_bins": 5
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographic attribute related to personal identity | Values: [39, 50, 38, 53, 28]\n2. Column: Education | Reason: Socioeconomic and demographic information about educational level | Values: [HS-grad, Some-college, Bachelors]\n3. Column: Marital-status | Reason: Personal attribute indicating family status | Values: [Married-civ-spouse, Never-married, Divorced]\n4. Column: Occupation | Reason: Relates to employment and Socioeconomic status | Values: [Prof-specialty, Craft-rep"
+  }
+}

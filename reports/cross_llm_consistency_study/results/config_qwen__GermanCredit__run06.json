@@ -1,0 +1,59 @@
+{
+  "run_id": 6,
+  "model_config": "config_qwen",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T13:12:37.753184",
+  "elapsed_seconds": 84.7,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "status",
+      "personal_status_sex",
+      "other_debtors",
+      "employment_duration",
+      "property",
+      "job",
+      "age",
+      "savings",
+      "credit_history"
+    ],
+    "num_sensitive_columns": 9,
+    "pair_selection": {
+      "selected_pairs": [
+        "status + personal_status_sex",
+        "employment_duration + job"
+      ],
+      "total_possible": 36,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"status + personal_status_sex\" is based on the historical significance of gender and status in various contexts, where discrimination has been well-documented. This pair helps to identify potential biases related to gender roles and social standing. The pair \"employment_duration + job\" is chosen because it addresses a critical aspect of employment fairness. Employment duration can"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          45.0,
+          60.0,
+          75.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior",
+          "Elderly"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: status | Reason: Indicates financial situation which can be considered sensitive in some contexts | Values: no checking account(39.4%), < 100 DM(27.4%), 0 <= ... < 200 DM(26.9%)\n2. Column: personal_status_sex | Reason: Includes gender and marital status, which are protected attributes | Values: male : single(54.8%), female : divorced/separated/married(31.0%), male : married/widowed(9.2%)\n3. Column: other_debtors | Reason: Can indicate the presence of co-applicants or guarantors, which"
+  }
+}

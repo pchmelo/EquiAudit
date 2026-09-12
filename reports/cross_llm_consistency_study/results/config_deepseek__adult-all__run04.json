@@ -1,0 +1,80 @@
+{
+  "run_id": 4,
+  "model_config": "config_deepseek",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T13:39:35.641010",
+  "elapsed_seconds": 374.8,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Relationship",
+      "Race",
+      "Sex",
+      "Hours-per-week",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 9,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Sex"
+      ],
+      "total_possible": 36,
+      "mode": "auto",
+      "reasoning_excerpt": "The pairs \"Race + Sex\" and \"Age + Sex\" are selected based on their historical significance in discrimination studies, high potential for intersectional bias, and relevance across employment, healthcare, and lending contexts. These combinations are well-documented and statistically significant, making them crucial for a comprehensive fairness analysis."
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          16.927,
+          31.6,
+          46.2,
+          60.8,
+          75.4,
+          90.0
+        ],
+        "labels": [
+          "(16.926, 31.6]",
+          "(31.6, 46.2]",
+          "(46.2, 60.8]",
+          "(60.8, 75.4]",
+          "(75.4, 90.0]"
+        ],
+        "method": "equal_width (fallback — agent failed to return BIN_EDGES)",
+        "n_bins": 5
+      },
+      "Hours-per-week": {
+        "edges": [
+          1.0,
+          30.0,
+          45.0,
+          60.0,
+          80.0,
+          99.0
+        ],
+        "labels": [
+          "Part-time",
+          "Full-time (moderate)",
+          "Full-time (high)",
+          "High-commitment",
+          "Senior roles"
+        ],
+        "method": "auto",
+        "n_bins": 5
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographic information about individuals | Values: [39, 50, 38, 53, 28]  \n2. Column: Education | Reason: Socioeconomic status indicator | Values: [HS-grad, Some-college, Bachelors]  \n3. Column: Education Number of Years | Reason: Detailed socio-economic information | Values: [9, 10, 13]  \n4. Column: Marital-status | Reason: Personal information about family status | Values: [Married-civ-spouse, Never-married, Divorced]  \n5. Column: Occupation | Reason: Employment-relate"
+  }
+}

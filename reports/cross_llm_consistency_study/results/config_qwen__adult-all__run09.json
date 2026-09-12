@@ -1,0 +1,56 @@
+{
+  "run_id": 9,
+  "model_config": "config_qwen",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T13:01:25.950617",
+  "elapsed_seconds": 72.4,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Sex",
+      "Race",
+      "Native-country",
+      "Education",
+      "Marital-status"
+    ],
+    "num_sensitive_columns": 6,
+    "pair_selection": {
+      "selected_pairs": [
+        "Sex + Race",
+        "Age + Marital-status"
+      ],
+      "total_possible": 15,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"Race + Sex\" is based on historical discrimination patterns, particularly in contexts where race and gender intersect to compound disadvantages. For instance, women of certain races may face unique barriers that are not as pronounced when considering each attribute separately. The pair \"Age + Marital-status\" was chosen because it has significant relevance to employment and healthc"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          25.0,
+          40.0,
+          60.0,
+          90.0
+        ],
+        "labels": [
+          "Teen",
+          "Young Adult",
+          "Middle-Aged",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographic information that can be used to identify individuals and may lead to discrimination based on age | Values: [39, 50, 38, 53, 28]\n2. Column: Sex | Reason: Personal attribute that can reveal gender identity and is protected under many anti-discrimination laws | Values: Male, Female\n3. Column: Race | Reason: Demographic information that can identify individuals from different racial backgrounds and may be subject to discrimination based on race or ethnicity | Val"
+  }
+}

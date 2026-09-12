@@ -1,0 +1,55 @@
+# EquiAudit consistency study - free model via OpenRouter
+# Requires env var: OPENROUTER_API_KEY
+#
+# Set before running:
+#   $env:OPENROUTER_API_KEY = "sk-or-..."
+#
+default_model: openrouter-free
+
+generate_detailed_report: false
+generate_executive_summary: false
+use_humanizer: false
+
+models:
+  openrouter-free:
+    provider: openrouter
+    model: "inclusionai/ling-3.0-flash-fin:free"
+    base_url: "https://openrouter.ai/api/v1"
+    model_info:
+      function_calling: true
+      vision: false
+      structured_output: true
+
+agents:
+  file_parser:
+    type: FunctionCallerAgent
+    tools: [fairness]
+    stages: [parsing]
+    reflect_on_tool_use: true
+
+  inspector:
+    type: FunctionCallerAgent
+    tools: [fairness]
+    stages: [inspection]
+    reflect_on_tool_use: true
+
+  quality_analyst:
+    type: DataAnalystAgent
+    tools: [fairness]
+    stages: [quality_analysis]
+
+  fairness_analyst:
+    type: DataAnalystAgent
+    tools: [fairness]
+    stages: [fairness_analysis]
+
+  bias_mitigator:
+    type: FunctionCallerAgent
+    tools: [bias_mitigation]
+    stages: [mitigation]
+    reflect_on_tool_use: true
+
+  recommendation:
+    type: ConversationalAgent
+    tools: []
+    stages: [recommendation]

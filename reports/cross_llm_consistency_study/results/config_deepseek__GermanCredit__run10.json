@@ -1,0 +1,56 @@
+{
+  "run_id": 10,
+  "model_config": "config_deepseek",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T14:44:44.968499",
+  "elapsed_seconds": 323.4,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "age",
+      "personal_status_sex",
+      "employment_duration",
+      "present_residence",
+      "job",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 6,
+    "pair_selection": {
+      "selected_pairs": [
+        "personal_status_sex + foreign_worker",
+        "age + job"
+      ],
+      "total_possible": 15,
+      "mode": "auto",
+      "reasoning_excerpt": "1. **personal_status_sex + foreign_worker**: This pair is selected due to its high potential for intersectional bias. It combines gender status with being a foreign worker, which can lead to compounded disadvantages in areas like employment and opportunities. 2. **age + job**: This pair is chosen because it addresses historical discrimination patterns similar to Age+Gender. It's highly relevant to"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          26.0,
+          31.0,
+          41.0,
+          51.0
+        ],
+        "labels": [
+          "19.0-26.0",
+          "26.0-31.0",
+          "31.0-41.0",
+          "41.0-51.0"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: age | Reason: Age is a demographic attribute. | Values: [67, 22, 49, 45, 53]  \n2. Column: personal_status_sex | Reason: This column relates to gender and marital status, which are sensitive attributes. | Values: [male : single, female : divorced/separated/married, male : married/widowed]  \n3. Column: employment_duration | Reason: This column provides information about the duration of employment, which is a socioeconomic attribute. | Values: [1 <= ... < 4 years, ... >= 7 years, 4 <= .."
+  }
+}

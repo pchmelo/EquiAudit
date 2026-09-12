@@ -1,0 +1,60 @@
+{
+  "run_id": 10,
+  "model_config": "config_qwen",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T13:03:05.375630",
+  "elapsed_seconds": 94.3,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Workclass",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 8,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Occupation"
+      ],
+      "total_possible": 28,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"Race + Sex\" is based on historical discrimination patterns, particularly in employment and lending contexts where gender and race have often intersected to compound disadvantage. This pair is crucial for identifying potential biases that may disproportionately affect certain demographic groups. The pair \"Age + Occupation\" is selected because it directly relates to the context of "
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          25.0,
+          35.0,
+          45.0,
+          60.0,
+          90.0
+        ],
+        "labels": [
+          "Teen",
+          "Young Adult",
+          "Middle-Aged",
+          "Mature",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 5
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographic information that can be used to discriminate based on age | Values: [39, 50, 38, 53, 28]\n2. Column: Workclass | Reason: Can indirectly reveal demographic and socioeconomic status | Values: Private(69.42%), Self-emp-not-inc(7.91%), Local-gov(6.42%)\n3. Column: Education | Reason: Educational background is a socio-economic attribute | Values: HS-grad(32.32%), Some-college(22.27%), Bachelors(16.43%)\n4. Column: Education Number of Years | Reason: Related to the le"
+  }
+}

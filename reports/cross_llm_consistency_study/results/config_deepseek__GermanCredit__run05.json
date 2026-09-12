@@ -1,0 +1,54 @@
+{
+  "run_id": 5,
+  "model_config": "config_deepseek",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T14:24:04.091324",
+  "elapsed_seconds": 257.8,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "age",
+      "personal_status_sex",
+      "job",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 4,
+    "pair_selection": {
+      "selected_pairs": [
+        "age + personal_status_sex",
+        "age + job"
+      ],
+      "total_possible": 6,
+      "mode": "auto",
+      "reasoning_excerpt": "1. **Historical Discrimination Patterns**: Age combined with gender (personal_status_sex) is a well-studied combination due to historical biases in areas like employment and healthcare. 2. **Intersectional Bias**: This pair highlights how age and gender can compound disadvantages, affecting fairness in employment opportunities. 3. **Relevance to Employment Fairness**: Both pairs are highly relevan"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          45.0,
+          60.0,
+          75.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior",
+          "Elderly"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "Here is the analysis of the dataset identifying sensitive columns:\n\n1. **Column: age | Reason: Demographics | Values: [67, 22, 49, 45, 53]**  \n   This column represents the age of individuals, which falls under the demographic category, making it a sensitive attribute.\n\n2. **Column: personal_status_sex | Reason: Sex/Gender | Values: [male : single(54.8%), female : divorced(20.5%), male : married/widowed(25.3%)]**  \n   This column provides information about the sex and marital status of individua"
+  }
+}

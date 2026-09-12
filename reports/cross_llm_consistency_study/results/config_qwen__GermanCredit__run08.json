@@ -1,0 +1,59 @@
+{
+  "run_id": 8,
+  "model_config": "config_qwen",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T13:15:41.327103",
+  "elapsed_seconds": 92.5,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "status",
+      "credit_history",
+      "personal_status_sex",
+      "other_debtors",
+      "age",
+      "employment_duration",
+      "housing",
+      "job",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 9,
+    "pair_selection": {
+      "selected_pairs": [
+        "credit_history + personal_status_sex",
+        "age + employment_duration"
+      ],
+      "total_possible": 36,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"personal_status_sex + credit_history\" is based on the potential for intersectional bias, as gender and credit history are both known to have historical patterns of discrimination. Women, in particular, may face compounded disadvantages if they have a poor credit history. The pair \"age + employment_duration\" was chosen because age can be a critical factor in employment fairness an"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          45.0,
+          60.0,
+          75.0
+        ],
+        "labels": [
+          "Youth",
+          "Adult",
+          "Middle-Age",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: status | Reason: Indicates financial situation which can be linked to socioeconomic status | Values: no checking account(39.4%), ... < 100 DM(27.4%), 0 <= ... < 200 DM(26.9%)\n2. Column: credit_history | Reason: Historical financial data that could indicate past financial behavior and status | Values: existing credits paid back duly till now(53.0%), critical account/other credits existing(29.3%), delay in paying off in the past(8.8%)\n3. Column: personal_status_sex | Reason: Personal in"
+  }
+}

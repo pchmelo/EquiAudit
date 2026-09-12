@@ -1,0 +1,54 @@
+{
+  "run_id": 3,
+  "model_config": "config_openrouter",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-12T18:31:36.379329",
+  "elapsed_seconds": 30.0,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "age",
+      "personal_status_sex",
+      "job",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 4,
+    "pair_selection": {
+      "selected_pairs": [
+        "age + personal_status_sex",
+        "personal_status_sex + job"
+      ],
+      "total_possible": 6,
+      "mode": "auto",
+      "reasoning_excerpt": "1. **Historical discrimination patterns**: The pair \"age + personal_status_sex\" directly mirrors the historically studied \"Age+Gender\" intersection, which is well-documented in discrimination literature. The pair \"personal_status_sex + job\" reflects historical patterns of occupational segregation and gender bias in the workplace. 2. **Potential for intersectional bias**: Older women (age + persona"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          45.0,
+          60.0,
+          75.0
+        ],
+        "labels": [
+          "Young-Adult",
+          "Adult",
+          "Middle-Aged",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: age | Reason: Age is a demographic sensitive attribute | Values: [67, 22, 49, 45, 53]\n2. Column: personal_status_sex | Reason: Contains sex/gender and marital status which are personal and demographic sensitive attributes | Values: [male : single, female : divorced/separated/married, male : married/widowed]\n3. Column: job | Reason: Occupation is a socioeconomic sensitive attribute | Values: [skilled employee/official, unskilled - resident, management/self-employed/highly qualified emp"
+  }
+}

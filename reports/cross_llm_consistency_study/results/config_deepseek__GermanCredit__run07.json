@@ -1,0 +1,49 @@
+{
+  "run_id": 7,
+  "model_config": "config_deepseek",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T14:31:05.278993",
+  "elapsed_seconds": 174.6,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "age",
+      "job"
+    ],
+    "num_sensitive_columns": 2,
+    "pair_selection": {
+      "selected_pairs": [],
+      "total_possible": 0,
+      "mode": "",
+      "reasoning_excerpt": ""
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          50.0,
+          65.0,
+          75.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior",
+          "Elderly"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: age | Reason: Demographics | Values: [67, 22, 49, 45, 53]  \n2. Column: sex | Reason: Personal | Values: male : single(54.8%), female : divorced/separated/married(31.0%), male : married/widowed(9.2%)  \n3. Column: job | Reason: Socioeconomic | Values: skilled employee/official(63.0%), unskilled - resident(20.0%), management/self-employed/highly qualified employee/officer(14.8%)"
+  }
+}

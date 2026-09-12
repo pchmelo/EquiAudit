@@ -1,0 +1,53 @@
+{
+  "run_id": 6,
+  "model_config": "config_deepseek",
+  "dataset": "GermanCredit.csv",
+  "target_column": "credit_risk",
+  "timestamp": "2026-09-11T14:28:05.858274",
+  "elapsed_seconds": 237.0,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "age",
+      "personal_status_sex",
+      "foreign_worker"
+    ],
+    "num_sensitive_columns": 3,
+    "pair_selection": {
+      "selected_pairs": [
+        "age + personal_status_sex",
+        "age + foreign_worker"
+      ],
+      "total_possible": 3,
+      "mode": "auto",
+      "reasoning_excerpt": "The pairs \"age + personal_status_sex\" and \"age + foreign_worker\" are selected for their relevance to historical discrimination patterns, potential for intersectional bias, and statistical significance. Age is a critical factor in many fairness issues, such as employment and access to services, while personal_status_sex and foreign_worker provide additional dimensions that can compound disadvantage"
+    },
+    "discretization": {
+      "age": {
+        "edges": [
+          19.0,
+          30.0,
+          45.0,
+          60.0,
+          75.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior",
+          "Elderly"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: age | Reason: Represents personal demographic information | Values: [22, 45, 49, 53, 63]\n2. Column: personal_status_sex | Reason: Includes both gender and marital status | Values: [male, female, single, married, divorced, widowed]\n3. Column: foreign_worker | Reason: Potentially indicates nationality or country of origin | Values: [yes, no]"
+  }
+}

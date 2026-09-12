@@ -1,0 +1,59 @@
+{
+  "run_id": 6,
+  "model_config": "config_openrouter",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T15:35:42.846398",
+  "elapsed_seconds": 28.1,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Workclass",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Relationship",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 9,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Sex"
+      ],
+      "total_possible": 36,
+      "mode": "auto",
+      "reasoning_excerpt": "Race + Sex is selected because it is the foundational pair in intersectionality studies, capturing compounded historical discrimination where individuals face simultaneous bias based on race and gender. This combination is critical across employment, lending, and healthcare contexts, and typically yields sufficient statistical data points for robust analysis. Age + Sex is selected because it addre"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          30.0,
+          45.0,
+          60.0,
+          90.0
+        ],
+        "labels": [
+          "Young",
+          "Adult",
+          "Middle-Aged",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographics attribute representing a person's age | Values: [39, 50, 38, 53, 28]\n2. Column: Workclass | Reason: Socioeconomic attribute representing employment type | Values: [Private, Self-emp-not-inc, Local-gov]\n3. Column: Education | Reason: Socioeconomic attribute representing educational attainment | Values: [HS-grad, Some-college, Bachelors]\n4. Column: Education Number of Years | Reason: Socioeconomic attribute representing years of schooling | Values: [9, 10, 13]"
+  }
+}

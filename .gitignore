@@ -2,6 +2,9 @@
 notebooks/*
 
 examples/*.csv
+examples/reports/*
+src/results/*
+*.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -189,6 +192,8 @@ results/
 reports/*
 !reports/adults_report_example/*
 !reports/.gitkeep
+!reports/cross_llm_consistency_study
+!reports/cross_llm_consistency_study/**
 
 # Temporary files
 tmp/
@@ -209,5 +214,8 @@ src/data/*_discretized_discretized*.csv
 secrets.json
 config.json
 credentials.json
+
+# User-local config (copy from config.example.yml — never commit)
+examples/config.yml
 
 paper/*

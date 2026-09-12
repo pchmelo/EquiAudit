@@ -1,0 +1,278 @@
+# =============================================================================
+# EquiAudit — Configuration Reference
+# =============================================================================
+# Copy this file to config.yml and fill in your values.
+#
+#   cp examples/config.example.yml examples/config.yml
+#
+# config.yml is git-ignored so your API keys and local paths are never committed.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# Mode
+# -----------------------------------------------------------------------------
+# How to launch via examples/example_usage.py.
+#   gui   - Streamlit web interface (requires: pip install "equiaudit[gui]")
+#   quick - Headless evaluation driven by the settings in this file
+# For full CLI control: equiaudit --data <file> (see docs/USAGE.md)
+mode: gui
+
+
+# -----------------------------------------------------------------------------
+# Report Output
+# -----------------------------------------------------------------------------
+# Where generated reports are saved.
+# Relative paths resolve relative to this config file.
+# Omit (or set to null) to use a "reports/" folder next to this config file.
+# report_dir: reports
+
+
+# -----------------------------------------------------------------------------
+# Report Options
+# -----------------------------------------------------------------------------
+generate_detailed_report: true    # detailed_metrics_report.md + PDF
+generate_executive_summary: false # prepend an LLM-written summary to the report
+                                  # (prone to hallucination with smaller models — keep false)
+use_humanizer: true               # post-process agent narrative sections into more
+                                  # natural language (adds one LLM call per stage)
+
+
+# -----------------------------------------------------------------------------
+# Dataset (quick / headless mode only)
+# -----------------------------------------------------------------------------
+# dataset: "adult-all.csv"        # filename or absolute path to your CSV
+# target_column: "Income"         # classification target column (must match CSV header exactly)
+
+
+# -----------------------------------------------------------------------------
+# Models
+# -----------------------------------------------------------------------------
+# Define one or more named model backends. Each agent uses default_model unless
+# it overrides via its own `model:` key in the agents section below.
+#
+# Providers:
+#   openrouter -> model, base_url (optional)
+#   gemini     -> model  (reads GOOGLE_API_KEY from env by default)
+#   ollama     -> model, base_url (optional, default http://localhost:11434)
+#
+# API keys are loaded from environment variables or a .env file at the project root:
+#   OPENROUTER_API_KEY
+#   GOOGLE_API_KEY
+
+default_model: gemini-flash   # name of the model entry below to use by default
+
+models:
+  # --- Local (Ollama) ---
+  # qwen2.5-7b:
+  #   provider: ollama
+  #   model: "qwen2.5:7b"
+  #   base_url: "http://localhost:11434"   # optional, this is the default
+
+  # llama3.1-8b:
+  #   provider: ollama
+  #   model: "llama3.1:8b"
+
+  # --- Google Gemini ---
+  gemini-flash:
+    provider: gemini
+    model: "gemini-2.5-flash-lite"
+    # api_key: loaded from GOOGLE_API_KEY env var
+
+  # gemini-pro:
+  #   provider: gemini
+  #   model: "gemini-2.5-pro"
+
+  # --- OpenRouter ---
+  # openrouter-llama:
+  #   provider: openrouter
+  #   model: "meta-llama/llama-3.1-8b-instruct:free"
+  #   base_url: "https://openrouter.ai/api/v1"
+  #   model_info:
+  #     function_calling: true
+  #     vision: false
+  #     structured_output: true
+
+
+# -----------------------------------------------------------------------------
+# Sensitive Attribute Analysis
+# -----------------------------------------------------------------------------
+# Controls which columns are examined for fairness issues.
+#
+# type: auto       - the LLM detects sensitive attributes automatically
+# type: restricted - only the listed attributes are analysed (locks selection,
+#                    bypasses the LLM detection + analyst confirmation gate)
+#
+# Discretization converts continuous attributes (e.g. Age) into categorical bins.
+#   method: auto          - choose method automatically
+#           equal_width   - bins of equal numeric width
+#           equal_freq    - bins with equal number of samples
+#           kmeans        - k-means cluster boundaries
+#   number_of_bins        - how many bins to create (default: 5)
+#   continuous_threshold  - columns with more than this many unique values are
+#                           treated as continuous and discretized (default: 10)
+
+sensitive_attribute_analysis:
+  type: auto
+  # attributes:          # required when type is "restricted"
+  #   - "age"
+  #   - "sex"
+  #   - "race"
+  discretization: enable
+  method: auto
+  number_of_bins: 5
+  continuous_threshold: 10
+
+
+# -----------------------------------------------------------------------------
+# Pair Evaluation (intersectional fairness)
+# -----------------------------------------------------------------------------
+# Controls which attribute pairs are evaluated for intersectional bias.
+#
+# type: auto       - the LLM selects the most relevant pairs
+# type: restricted - only the listed pairs are evaluated (locks selection)
+#
+# max_pairs applies only when type is "auto" — limits how many pairs the LLM picks.
+
+pair_evaluation:
+  type: auto
+  max_pairs: 2
+  # type: restricted
+  # pairs:
+  #   - ["race", "sex"]
+  #   - ["age", "sex"]
+
+
+# -----------------------------------------------------------------------------
+# Mitigation Techniques
+# -----------------------------------------------------------------------------
+# Which bias mitigation methods to apply in Stage 6.
+# Remove this section entirely to skip mitigation.
+#
+# Available techniques:
+#   reweighting   - sample reweighting to balance group representation
+#   smote         - synthetic minority oversampling (SMOTE)
+#   aif360        - AIF360 Reweighing (requires: pip install aif360)
+#   resampling    - combined over/under sampling
+#   oversampling  - random oversampling of the minority class
+#   undersampling - random undersampling of the majority class
+
+mitigation_techniques:
+  techniques:
+    - reweighting
+    - smote
+    - aif360
+
+
+# -----------------------------------------------------------------------------
+# ML Evaluation
+# -----------------------------------------------------------------------------
+# Proxy classifier used to compute fairness metrics (SPD, DI, etc.).
+# The classifier is trained with a fixed random seed and evaluated on a held-out
+# test split — all numerical outputs are fully deterministic.
+#
+# model_type options: "Random Forest" (default)
+# test_size: fraction of data reserved for evaluation (default: 0.25)
+
+# ml_evaluation:
+#   model_type: "Random Forest"
+#   test_size: 0.25
+#   model_params:
+#     Random Forest:
+#       n_estimators: 100
+#       max_depth: null    # null = unlimited
+
+
+# -----------------------------------------------------------------------------
+# Tools
+# -----------------------------------------------------------------------------
+# Tool managers available to agents. These rarely need to be changed.
+
+tools:
+  fairness:
+    class: "FairnessTools"
+    description: "Tools for fairness analysis and dataset inspection"
+
+  bias_mitigation:
+    class: "BiasMitigationTools"
+    description: "Tools for bias mitigation techniques (SMOTE, reweighting, etc.)"
+
+
+# -----------------------------------------------------------------------------
+# Agents
+# -----------------------------------------------------------------------------
+# Each agent entry maps to a pipeline stage and declares its type and tools.
+# Add `model: <model_name>` to any agent to override the default_model for that
+# agent only.
+#
+# Agent types:
+#   FunctionCallerAgent  - calls tools based on the stage prompt
+#   DataAnalystAgent     - analyses tool outputs and generates narrative
+#   ConversationalAgent  - generates text without calling tools
+
+agents:
+  file_parser:
+    type: FunctionCallerAgent
+    # model: qwen2.5-7b   # override default for this agent only
+    tools: [fairness]
+    stages: [parsing]
+    reflect_on_tool_use: true
+
+  inspector:
+    type: FunctionCallerAgent
+    tools: [fairness]
+    stages: [inspection]
+    reflect_on_tool_use: true
+
+  quality_analyst:
+    type: DataAnalystAgent
+    tools: [fairness]
+    stages: [quality_analysis]
+
+  fairness_analyst:
+    type: DataAnalystAgent
+    tools: [fairness]
+    stages: [fairness_analysis]
+
+  bias_mitigator:
+    type: FunctionCallerAgent
+    tools: [bias_mitigation]
+    stages: [mitigation]
+    reflect_on_tool_use: true
+
+  recommendation:
+    type: ConversationalAgent
+    tools: []
+    stages: [recommendation]
+
+
+# -----------------------------------------------------------------------------
+# Pipeline
+# -----------------------------------------------------------------------------
+# Stage order. Change only if you need to add, remove, or reorder stages.
+
+pipeline:
+  stages:
+    - name: parsing
+      description: "Parse and load the dataset"
+      agents: [file_parser]
+
+    - name: inspection
+      description: "Initial dataset inspection and validation"
+      agents: [inspector]
+
+    - name: quality_analysis
+      description: "Analyse data quality issues"
+      agents: [quality_analyst]
+
+    - name: fairness_analysis
+      description: "Analyse fairness and bias metrics"
+      agents: [fairness_analyst]
+
+    - name: mitigation
+      description: "Apply bias mitigation techniques"
+      agents: [bias_mitigator]
+
+    - name: recommendation
+      description: "Generate recommendations and summary"
+      agents: [recommendation]

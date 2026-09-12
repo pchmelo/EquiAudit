@@ -52,7 +52,15 @@ pip install -r requirements-gui.txt      # optional: Streamlit GUI
 
 ## Configuration
 
-Copy `examples/config.yml` and set your API keys as environment variables or in a `.env` file at the project root:
+Copy the example config and edit it for your setup:
+
+```bash
+cp examples/config.example.yml examples/config.yml
+```
+
+`config.yml` is git-ignored so your API keys and local paths are never committed.
+
+Set your API keys as environment variables or in a `.env` file at the project root:
 
 ```bash
 GOOGLE_API_KEY=your-google-gemini-api-key-here
@@ -61,11 +69,11 @@ OPENROUTER_API_KEY=your-openrouter-api-key-here
 
 At least one cloud API key is required unless running a local model via Ollama (`ollama serve`).
 
-See [USAGE.md — Configuration File](docs/USAGE.md#configuration-file) for the full annotated config reference.
+`config.example.yml` documents every available option with inline comments. See also [USAGE.md — Configuration File](docs/USAGE.md#configuration-file) for the full reference.
 
 ## Running the Application
 
-The recommended entry point is `examples/example_usage.py`. Set `mode: gui` or `mode: quick` in `examples/config.yml`, then run:
+The recommended entry point is `examples/example_usage.py`. After copying `config.example.yml` to `config.yml`, set `mode: gui` or `mode: quick` in `examples/config.yml`, then run:
 
 ```bash
 python examples/example_usage.py

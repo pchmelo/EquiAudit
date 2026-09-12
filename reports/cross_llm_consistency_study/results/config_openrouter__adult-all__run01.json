@@ -1,0 +1,58 @@
+{
+  "run_id": 1,
+  "model_config": "config_openrouter",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T15:32:33.613911",
+  "elapsed_seconds": 34.3,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Relationship",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 8,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Sex"
+      ],
+      "total_possible": 28,
+      "mode": "auto",
+      "reasoning_excerpt": "Race + Sex is selected because it is the foundational intersection in fairness analysis, capturing historical and systemic discrimination patterns where racial and gender biases compound to create unique disadvantages (e.g., specific hiring barriers and wage gaps). It is highly relevant across employment, lending, and healthcare contexts, and typically maintains statistical significance in demogra"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          30.0,
+          45.0,
+          60.0,
+          90.0
+        ],
+        "labels": [
+          "Young",
+          "Adult",
+          "Middle-Aged",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographics attribute representing a person's age | Values: [39, 50, 38, 53, 28]\n2. Column: Education | Reason: Socioeconomic attribute representing educational attainment | Values: [HS-grad, Some-college, Bachelors]\n3. Column: Marital-status | Reason: Personal attribute representing marital situation | Values: [Married-civ-spouse, Never-married, Divorced]\n4. Column: Occupation | Reason: Socioeconomic attribute representing a person's job type | Values: [Prof-specialty,"
+  }
+}

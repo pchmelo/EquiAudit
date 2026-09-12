@@ -1,0 +1,59 @@
+{
+  "run_id": 8,
+  "model_config": "config_qwen",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T13:00:08.495251",
+  "elapsed_seconds": 93.4,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Workclass",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Relationship",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 9,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Occupation"
+      ],
+      "total_possible": 36,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"Race + Sex\" is based on historical discrimination patterns, particularly in areas such as employment and housing where race and gender have been shown to compound disadvantages. This intersectional analysis can help uncover biases that might not be apparent when considering these attributes separately. The pair \"Age + Occupation\" was chosen because it directly relates to the cont"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          25.0,
+          35.0,
+          45.0,
+          60.0
+        ],
+        "labels": [
+          "Youth",
+          "YoungAdult",
+          "MiddleAge",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographic information that can be used to discriminate based on age | Values: [39, 50, 38, 53, 28]\n2. Column: Workclass | Reason: Can indicate socio-economic status and may be sensitive in certain contexts | Values: Private(69.42%), Self-emp-not-inc(7.91%), Local-gov(6.42%)\n3. Column: Education | Reason: Educational background can be a form of demographic discrimination | Values: HS-grad(32.32%), Some-college(22.27%), Bachelors(16.43%)\n4. Column: Education Number of Ye"
+  }
+}

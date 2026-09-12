@@ -1,0 +1,58 @@
+{
+  "run_id": 2,
+  "model_config": "config_qwen",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T12:50:54.769407",
+  "elapsed_seconds": 77.8,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Race",
+      "Sex",
+      "Native-country",
+      "Education",
+      "Marital-status"
+    ],
+    "num_sensitive_columns": 6,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Marital-status"
+      ],
+      "total_possible": 15,
+      "mode": "auto",
+      "reasoning_excerpt": "The selection of \"Race + Sex\" is based on historical discrimination patterns, particularly in areas such as employment and housing where race and gender often intersect to compound disadvantages. This pair has been a focus in many studies due to the well-documented intersectional biases faced by individuals who are both racial minorities and members of a marginalized sex. The selection of \"Age + M"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          25.0,
+          35.0,
+          45.0,
+          60.0,
+          90.0
+        ],
+        "labels": [
+          "Teen",
+          "Young Adult",
+          "Middle-Age",
+          "Mature",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 5
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographics | Values: [39, 50, 38, 53, 28]\n2. Column: Race | Reason: Demographics | Values: [White, Black, Asian-Pac-Islander]\n3. Column: Sex | Reason: Demographics | Values: [Male, Female]\n4. Column: Native-country | Reason: Geographic | Values: [United-States, Mexico, ?]\n5. Column: Education | Reason: Socioeconomic | Values: [HS-grad, Some-college, Bachelors]\n6. Column: Marital-status | Reason: Personal | Values: [Married-civ-spouse, Never-married, Divorced]"
+  }
+}

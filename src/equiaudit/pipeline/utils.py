@@ -818,14 +818,12 @@ def generate_detailed_markdown_report(pipeline: Any) -> str:
         
     if "4_5_target_fairness" in stages:
         s45 = stages["4_5_target_fairness"]
-        if "single_attribute_ml_results" in s45:
-            append_detailed_tables(s45["single_attribute_ml_results"], "Stage 4.5: Per-Attribute Fairness ML Model")
-        if "intersectional_ml_results" in s45:
-            append_detailed_tables(s45["intersectional_ml_results"], "Stage 4.5: Intersectional Fairness ML Model")
+        append_detailed_tables(s45.get("single_attribute_ml_results") or {}, "Stage 4.5: Per-Attribute Fairness ML Model")
+        append_detailed_tables(s45.get("intersectional_ml_results") or {}, "Stage 4.5: Intersectional Fairness ML Model")
         
     if "6_bias_mitigation" in stages:
-        base_ml_results = stages.get("4_imbalance", {}).get("ml_model_results", {})
-        base_fairness = base_ml_results.get("fairness_analysis", {})
+        base_ml_results = (stages.get("4_imbalance") or {}).get("ml_model_results") or {}
+        base_fairness = base_ml_results.get("fairness_analysis") or {}
         
         mr_dict = stages["6_bias_mitigation"].get("methods", {})
         for method, mr in mr_dict.items():

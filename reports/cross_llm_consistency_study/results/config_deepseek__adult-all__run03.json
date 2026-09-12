@@ -1,0 +1,56 @@
+{
+  "run_id": 3,
+  "model_config": "config_deepseek",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T13:33:15.921475",
+  "elapsed_seconds": 204.0,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Relationship",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 8,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Education"
+      ],
+      "total_possible": 28,
+      "mode": "auto",
+      "reasoning_excerpt": "The pairs \"Race + Sex\" and \"Age + Gender\" are selected because they are highly relevant to historical discrimination patterns and their impact on fairness in employment, healthcare, and other critical areas. These combinations are commonly studied due to their systemic biases and statistical significance, making them crucial for intersectional analysis."
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          30.0,
+          55.0,
+          90.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior"
+        ],
+        "method": "auto",
+        "n_bins": 3
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Demographics | Values: [39, 50, 38, 53, 28]  \n2. Column: Education | Reason: Socioeconomic | Values: [HS-grad, Some-college, Bachelors]  \n3. Column: Education Number of Years | Reason: Socioeconomic | Values: [9, 10, 13]  \n4. Column: Marital-status | Reason: Personal | Values: [Married-civ-spouse, Never-married, Divorced]  \n5. Column: Occupation | Reason: Socioeconomic | Values: [Prof-specialty, Craft-repair, Exec-managerial]  \n6. Column: Relationship | Reason: Personal "
+  }
+}

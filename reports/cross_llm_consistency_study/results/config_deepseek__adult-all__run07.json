@@ -1,0 +1,58 @@
+{
+  "run_id": 7,
+  "model_config": "config_deepseek",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T13:50:56.243629",
+  "elapsed_seconds": 199.8,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Race",
+      "Sex",
+      "Marital-status",
+      "Education",
+      "Occupation",
+      "Relationship",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 8,
+    "pair_selection": {
+      "selected_pairs": [
+        "Age + Sex",
+        "Race + Sex"
+      ],
+      "total_possible": 28,
+      "mode": "auto",
+      "reasoning_excerpt": "Age + Sex and Race + Sex are selected for their significant relevance to historical discrimination patterns, particularly in gender-related issues. These pairs address both intersectional bias and statistical significance, making them crucial for analyzing fairness in employment contexts."
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          17.0,
+          30.0,
+          50.0,
+          64.0,
+          90.0
+        ],
+        "labels": [
+          "Young",
+          "Middle-Aged",
+          "Senior",
+          "Elderly"
+        ],
+        "method": "auto",
+        "n_bins": 4
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Represents age, a demographic attribute that can be sensitive due to personal privacy concerns. | Values: [39, 50, 38, 53, 28]  \n2. Column: Race | Reason: Indicates racial categories such as White, Black, and Asian-Pacific-Islander, which are protected attributes related to ethnicity. | Values: [White, Black, Asian-Pac-Islander]  \n3. Column: Sex | Reason: Represents gender, a sensitive attribute that pertains to personal identity. | Values: [Male, Female]  \n4. Column: Ma"
+  }
+}

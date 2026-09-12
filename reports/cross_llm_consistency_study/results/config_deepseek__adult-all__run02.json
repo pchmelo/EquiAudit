@@ -1,0 +1,59 @@
+{
+  "run_id": 2,
+  "model_config": "config_deepseek",
+  "dataset": "adult-all.csv",
+  "target_column": "Income",
+  "timestamp": "2026-09-11T13:29:47.066236",
+  "elapsed_seconds": 382.6,
+  "stages_run": [
+    "0_loading",
+    "1_objective",
+    "2_quality",
+    "3_sensitive",
+    "3_5_discretization"
+  ],
+  "decisions": {
+    "sensitive_columns": [
+      "Age",
+      "Education",
+      "Marital-status",
+      "Occupation",
+      "Race",
+      "Sex",
+      "Native-country"
+    ],
+    "num_sensitive_columns": 7,
+    "pair_selection": {
+      "selected_pairs": [
+        "Race + Sex",
+        "Age + Education"
+      ],
+      "total_possible": 21,
+      "mode": "auto",
+      "reasoning_excerpt": "1. **Race + Sex**: This pair is crucial due to its historical significance in systemic discrimination, affecting areas like employment and healthcare. It also highlights intersectional biases that compound disadvantages for certain groups. 2. **Age + Education**: This combination is relevant for understanding educational disparities and their impact on employment opportunities, making it highly si"
+    },
+    "discretization": {
+      "Age": {
+        "edges": [
+          16.927,
+          31.6,
+          46.2,
+          60.8,
+          75.4,
+          90.0
+        ],
+        "labels": [
+          "(16.926, 31.6]",
+          "(31.6, 46.2]",
+          "(46.2, 60.8]",
+          "(60.8, 75.4]",
+          "(75.4, 90.0]"
+        ],
+        "method": "equal_width (fallback — agent failed to return BIN_EDGES)",
+        "n_bins": 5
+      }
+    },
+    "stage3_tool_used": "detect_sensitive_attributes",
+    "stage3_agent_excerpt": "1. Column: Age | Reason: Represents demographic information about individuals' ages. | Values: [39, 50, 38, 53, 28]  \n2. Column: Education | Reason: Indicates the level of education attained by individuals. | Values: [HS-grad, Some-college, Bachelors]  \n3. Column: Education Number of Years | Reason: Provides the number of years completed in education. | Values: [9, 10, 13]  \n4. Column: Marital-status | Reason: Discloses the marital status of individuals. | Values: [Married-civ-spouse, Never-marr"
+  }
+}
